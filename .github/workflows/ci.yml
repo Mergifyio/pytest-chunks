@@ -1,0 +1,37 @@
+name: CI
+permissions: read-all
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    timeout-minutes: 7
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        python_version: [3.10.5]
+        target: [pep8, py310]
+        include:
+          - python_version: 3.10.5
+            target: py310
+          - python_version: 3.10.5
+            target: pep8
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python 🔧
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python_version }} 
+
+      - name: Build 🔧 & Test 🔍
+        run: |
+          # nosemgrep: generic.ci.security.use-frozen-lockfile.use-frozen-lockfile-pip
+          pip install -r requirements-dev.txt
+          tox -e ${{ matric.target }}
